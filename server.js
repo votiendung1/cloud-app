@@ -63,3 +63,32 @@ app.get('/products/search', async (req, res) => {
         res.status(500).json({ error: 'Lỗi server: ' + error.message });
     }
 });
+
+//xóa SP
+const { remove } = require('firebase/database'); // Thêm import này ở đầu file
+
+app.delete('/products/:id', async (req, res) => {
+    const productId = req.params.id;
+    try {
+        await remove(ref(database, 'products/' + productId));
+        res.status(200).json({ message: 'Xóa sản phẩm thành công' });
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi khi xóa sản phẩm' });
+    }
+});
+
+// Update SP
+app.put('/products/:id', async (req, res) => {
+    const productId = req.params.id;
+    const { name, price, description } = req.body;
+    try {
+        await set(ref(database, 'products/' + productId), {
+            name,
+            price,
+            description
+        });
+        res.status(200).json({ message: 'Cập nhật sản phẩm thành công' });
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi khi cập nhật sản phẩm' });
+    }
+});

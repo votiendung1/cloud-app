@@ -33,7 +33,10 @@ async function searchProduct() {
       const products = Object.values(result || {});
       if (products.length > 0) {
         searchResult.innerHTML = products.map(p =>
-          `<p>${p.name} - ${p.price} - ${p.description}</p>`
+          `<div class="list-group-item">
+            ID: ${id} | ${p.name} - ${p.price} - ${p.description}
+            <button class="btn btn-danger btn-sm float-end" onclick="deleteProduct('${id}')">Xóa</button>
+          </div>`
         ).join('');
       } else {
         searchResult.innerHTML = '<p>Không tìm thấy sản phẩm nào.</p>';
@@ -45,3 +48,31 @@ async function searchProduct() {
     searchResult.innerHTML = `<p>Lỗi kết nối: ${error.message}</p>`;
   }
 }
+
+// Xóa SP
+async function deleteProduct(id) {
+  if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
+    const response = await fetch(`/products/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    alert(result.message);
+    searchProduct(); // Cập nhật lại danh sách sau khi xóa
+  }
+}
+
+//Update SP
+document.getElementById('updateProductForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('updateId').value;
+  const name = document.getElementById('updateName').value;
+  const price = document.getElementById('updatePrice').value;
+  const description = document.getElementById('updateDescription').value;
+
+  const response = await fetch(`/products/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, price, description })
+  });
+  const result = await response.json();
+  alert(result.message);
+  e.target.reset();
+});
